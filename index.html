@@ -7,73 +7,106 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* Existing Styles */
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
         .container { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); position: relative;}
         h1 { text-align: center; color: #333; margin-bottom: 20px; }
         
-        /* Login Page Styles */
-        #login-page { max-width: 400px; margin: 100px auto; background: white; padding: 40px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
-        .login-input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
-        #login-error { color: #dc3545; margin-bottom: 15px; font-size: 14px; display: none; }
-        
-        /* Navigation & Pages */
+        /* Navigation Bar */
         .nav-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid #ddd; padding-bottom: 15px; flex-wrap: wrap;}
         .nav-bar button { background-color: #f8f9fa; color: #333; border: 1px solid #ccc; font-weight: bold; padding: 10px 15px; border-radius: 5px; cursor: pointer; transition: 0.2s;}
         .nav-bar button:hover { background-color: #e2e6ea; }
         .nav-bar button.active-nav { background-color: #007bff; color: white; border-color: #007bff; }
+
+        /* Pages */
         .page { display: none; }
         .page.active-page { display: block; }
 
-        /* General UI */
+        /* Disclaimer CSS */
         .disclaimer { background-color: #fff3cd; color: #856404; padding: 15px; border-radius: 5px; margin-bottom: 20px; font-size: 14px; border: 1px solid #ffeeba; }
+        .disclaimer strong { font-size: 15px; }
+        .disclaimer ol { margin-top: 8px; margin-bottom: 0; padding-left: 20px; }
+        .disclaimer li { margin-bottom: 5px; line-height: 1.4; }
+
         .controls { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: flex-end; justify-content: center; }
         .control-group { display: flex; flex-direction: column; }
         label { font-weight: bold; margin-bottom: 5px; color: #555; text-align: left;}
         input[type="text"], input[type="number"], input[type="password"], select { padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; width: 250px;}
         button.action-btn { padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; transition: background 0.3s;}
         button.action-btn:hover { background-color: #0056b3; }
+        button.action-btn:disabled { background-color: #cccccc; cursor: not-allowed; }
         
-        /* Table & Tabs */
+        .officer-info { background: #e9ecef; padding: 15px; border-radius: 5px; margin-bottom: 20px; font-size: 18px; display: none; text-align: center;}
+        
+        /* Tabs CSS */
+        .tab { overflow: hidden; border: 1px solid #ccc; background-color: #f1f1f1; border-radius: 5px 5px 0 0; margin-top: 20px;}
+        .tab button { background-color: inherit; float: left; border: none; outline: none; cursor: pointer; padding: 14px 16px; transition: 0.3s; color: #333; font-weight: bold; border-radius: 0;}
+        .tab button:hover { background-color: #ddd; }
+        .tab button.active { background-color: #fff; border-bottom: 2px solid #007bff; color: #007bff; }
+        .tabcontent { display: none; padding: 20px; border: 1px solid #ccc; border-top: none; border-radius: 0 0 5px 5px; background: white; }
+        .chart-container { position: relative; height: 400px; width: 100%; margin-bottom: 30px;}
+        
+        /* Table CSS */
         .promo-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 16px; }
         .promo-table th, .promo-table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
         .promo-table th { background-color: #007bff; color: white; }
-        .tab { overflow: hidden; border: 1px solid #ccc; background-color: #f1f1f1; border-radius: 5px 5px 0 0; margin-top: 20px;}
-        .tab button { background-color: inherit; float: left; border: none; outline: none; cursor: pointer; padding: 14px 16px; transition: 0.3s; color: #333; font-weight: bold; }
-        .tabcontent { display: none; padding: 20px; border: 1px solid #ccc; border-top: none; background: white; }
-        .chart-container { position: relative; height: 400px; width: 100%; margin-bottom: 30px;}
+        .promo-table tr:nth-child(even) { background-color: #f9f9f9; }
+        .promo-table tr:hover { background-color: #f1f1f1; }
+        .clickable-row { cursor: pointer; transition: background 0.2s;}
+        .clickable-row:hover { background-color: #d1ecf1 !important; }
+        .table-title { text-align: center; color: #333; margin-top: 30px; margin-bottom: 10px; }
+
+        #status-msg { text-align: center; font-weight: bold; margin-bottom: 20px; font-size: 16px; display: none;}
+        
+        /* File Upload CSS */
+        #file-upload-container { display: none; position: fixed; bottom: 10px; left: 15px; z-index: 1000; background: rgba(255,255,255,0.9); padding: 8px 12px; border-radius: 5px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        #file-upload-container label { font-size: 12px; color: #333; margin-bottom: 3px; display: block; font-weight: bold;}
+        #file-upload-container input[type="file"] { font-size: 11px; width: 200px; padding: 2px;}
+
+        /* Modal / Popup CSS */
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
-        .modal-content { background-color: #fff; margin: 5% auto; padding: 25px; border-radius: 8px; width: 90%; max-width: 800px; }
-        #author-credit { position: fixed; bottom: 10px; right: 15px; font-size: 11px; color: #888; z-index: 1000; }
+        .modal-content { background-color: #fff; margin: 5% auto; padding: 25px; border-radius: 8px; width: 90%; max-width: 800px; max-height: 80vh; overflow-y: auto; box-shadow: 0 5px 15px rgba(0,0,0,0.3);}
+        .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; line-height: 1;}
+        .close-btn:hover { color: black; }
+        .clickable-count { color: #007bff; text-decoration: underline; cursor: pointer; font-weight: bold; }
+        .clickable-count:hover { color: #0056b3; }
+        
+        /* Login CSS */
+        #loginScreen { text-align: center; padding: 50px 20px; }
+        #loginScreen h2 { margin-bottom: 20px; color: #333; }
     </style>
 </head>
 <body>
 
-<div id="login-page">
-    <h2>Access Portal</h2>
-    <p style="color: #666; font-size: 14px;">Please enter your credentials to continue.</p>
-    <div id="login-error">Invalid User ID or Password</div>
-    <input type="text" id="loginUser" class="login-input" placeholder="User ID">
-    <input type="password" id="loginPass" class="login-input" placeholder="Password (DDMMYY)">
-    <button class="action-btn" style="width: 100%; margin-top: 10px;" onclick="checkLogin()">Login</button>
-</div>
-
-<div class="container" id="main-content" style="display: none;">
+<div class="container">
     <h1>📈 Officer Promotion Predictor</h1>
+
+    <div id="loginScreen" style="display: block;">
+        <h2>Login to Access Predictor</h2>
+        <div class="controls" style="flex-direction: column; align-items: center; gap: 15px;">
+            <input type="text" id="loginUser" placeholder="User ID">
+            <input type="password" id="loginPass" placeholder="Password (DDMMYY)">
+            <button class="action-btn" onclick="checkLogin()" style="width: 270px;">Login</button>
+            <p id="loginError" style="color: red; display: none; font-weight: bold; margin-top: 10px;">Invalid User ID or Password.</p>
+        </div>
+    </div>
+	
     <div id="status-msg" style="color: blue;">Loading local CSV database...</div>
 
-    <div id="mainApp">
+    <div id="mainApp" style="display: none;">
+        
         <div class="disclaimer">
             <strong>Disclaimers:</strong>
             <ol>
-                <li>Calculations are indicative based on vacancy availability and basic forecasting.</li>
-                <li>Data sourced from Civil List; discrepancies may exist.</li>
+                <li>This projection has been prepared using a basic forecasting equation with minimal parameters, primarily based on the availability of vacancies. The actual years of promotion may differ, as the calculation does not take into account the eligibility criteria applicable to each designation.</li>
+                <li>The data has been sourced from the Civil List PDF file; while every effort has been made to ensure accuracy, some discrepancies may remain due to the cumbersome nature of verification.</li>
+                <li>Post-restructuring vacancies have been taken from the Re-worked Cadre Restructuring Proposal of CBIC presented before the Revenue Secretary.</li>
+                <li>At present, coverage is limited to officers at the level of Deputy Commissioner and above.</li>
+                <li>And, the figures presented herein are purely indicative, prepared in a rudimentary manner to provide only a broad overview of the promotional position. They should not be treated as definitive, as they are intended merely to convey a general picture.</li>
             </ol>
         </div>
 
         <div class="nav-bar">
             <button id="nav-predictor" class="active-nav" onclick="switchPage('page-predictor')">Promotion Predictor</button>
-            <button id="nav-name" onclick="switchPage('page-name')">Search by Name</button>
             <button id="nav-batch" onclick="switchPage('page-batch')">Batch-wise Analysis</button>
         </div>
 
@@ -84,134 +117,698 @@
                     <input type="number" id="empId" placeholder="e.g. 8366">
                 </div>
                 <div class="control-group">
-                    <label for="empBirthYear">Birth Year:</label>
+                    <label for="empBirthYear">Birth Year (Required for verification):</label>
                     <input type="password" id="empBirthYear" placeholder="e.g. 1988">
                 </div>
                 <button id="simBtn" class="action-btn" onclick="runSimulation()">Simulate Promotions</button>
             </div>
-            <div class="officer-info" id="officerInfo" style="display:none; background: #e9ecef; padding: 15px; text-align: center; margin-bottom: 20px;">
-                <strong>Name:</strong> <span id="infoName"></span> | <strong>Batch:</strong> <span id="infoBatch"></span>
+
+            <div class="officer-info" id="officerInfo">
+                <strong>Name:</strong> <span id="infoName"></span> | 
+                <strong>Batch:</strong> <span id="infoBatch"></span><br>
+                <strong>Joining Year:</strong> <span id="infoJoinYear"></span> | 
+                <strong>Retirement Year:</strong> <span id="infoRetYear"></span>
             </div>
+
             <div class="tab">
                 <button class="tablinks active" onclick="openTab(event, 'CurrentTab')">Current Sanctioned Posts</button>
                 <button class="tablinks" onclick="openTab(event, 'RestructureTab')">Post Cadre Restructuring</button>
             </div>
+
             <div id="CurrentTab" class="tabcontent" style="display: block;">
-                <div class="chart-container"><canvas id="currentChart"></canvas></div>
+                <h3 style="text-align: center;">Simulation based on Current Vacancies</h3>
+                <div class="chart-container">
+                    <canvas id="currentChart"></canvas>
+                </div>
                 <div id="currentListContainer"></div>
             </div>
+
             <div id="RestructureTab" class="tabcontent">
-                <div class="chart-container"><canvas id="restructureChart"></canvas></div>
+                <h3 style="text-align: center;">Simulation based on Restructured Vacancies</h3>
+                <div class="chart-container">
+                    <canvas id="restructureChart"></canvas>
+                </div>
                 <div id="restructureListContainer"></div>
             </div>
         </div>
 
-        <div id="page-name" class="page">
-            <div class="controls"><input type="text" id="searchNameInput" placeholder="Start typing a name..." onkeyup="searchByName()" style="width: 100%;"></div>
-            <div id="nameSearchResults"></div>
-        </div>
-
         <div id="page-batch" class="page">
+            <h3 style="text-align: center;">Batch-wise Final Retirement Designations</h3>
+            <p style="text-align: center; color: #555;">Select a batch to see how many officers will retire in each designation.</p>
             <div class="controls">
-                <select id="batchSelect"><option value="">-- Select a Batch --</option></select>
-                <button class="action-btn" onclick="runBatchAnalysis()">Analyze Batch</button>
+                <div class="control-group">
+                    <select id="batchSelect">
+                        <option value="">-- Select a Batch --</option>
+                    </select>
+                </div>
+                <button id="batchBtn" class="action-btn" onclick="runBatchAnalysis()">Analyze Batch</button>
             </div>
+            <p style="text-align: center; font-size: 14px; color: #666; margin-top: -10px;"><em>Click on the counts in the table below to see the list of officers.</em></p>
             <div id="batchResults"></div>
         </div>
     </div>
+
 </div>
 
-<div id="author-credit">by Krishnenthu Raja Mintoo</div>
+<div id="officerModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <h3 id="modalTitle" style="margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px;">Officers</h3>
+        <div id="modalBody"></div>
+    </div>
+</div>
+
+<div id="file-upload-container">
+    <label for="csvUpload">Upload Custom CSV Database:</label>
+    <input type="file" id="csvUpload" accept=".csv">
+</div>
 
 <script>
-    // LOGIN LOGIC
-    function checkLogin() {
-        const user = document.getElementById('loginUser').value;
-        const pass = document.getElementById('loginPass').value;
-        
-        // Generate current date in DDMMYY format
-        const now = new Date();
-        const dd = String(now.getDate()).padStart(2, '0');
-        const mm = String(now.getMonth() + 1).padStart(2, '0');
-        const yy = String(now.getFullYear()).slice(-2);
-        const correctPass = dd + mm + yy;
+    const LOCAL_CSV_FILE = "cl.csv";
 
-        if (user === "test" && pass === correctPass) {
-            document.getElementById('login-page').style.display = 'none';
-            document.getElementById('main-content').style.display = 'block';
-            initApp(); // Load the CSV once logged in
+    // --- LOGIN LOGIC ---
+    function checkLogin() {
+        const user = document.getElementById('loginUser').value.trim();
+        const pass = document.getElementById('loginPass').value.trim();
+
+        // Dynamically generate today's date in DDMMYY format
+        const today = new Date();
+        const dd = String(today.getDate()).padStart(2, '0');
+        const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+        const yy = String(today.getFullYear()).slice(-2);
+        const requiredPass = dd + mm + yy;
+
+        if (user === "test" && pass === requiredPass) {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            document.getElementById('file-upload-container').style.display = 'block';
+            document.getElementById('status-msg').style.display = 'block';
+            loadCSVData();
         } else {
-            document.getElementById('login-error').style.display = 'block';
+            document.getElementById('loginError').style.display = 'block';
         }
     }
 
-    // Allow "Enter" key to trigger login
-    document.addEventListener('keypress', function (e) {
-        if (e.key === 'Enter' && document.getElementById('login-page').style.display !== 'none') {
-            checkLogin();
-        }
-    });
+    // Constants & Configurations (Highest to Lowest)
+    const HIERARCHY = [
+        "Principal Chief Commissioner", 
+        "Chief Commissioner", 
+        "Principal Commissioner", 
+        "Commissioner", 
+        "Additional Commissioner", 
+        "Joint Commissioner",
+        "Deputy Commissioner"
+    ];
 
-    // --- REST OF YOUR ORIGINAL APP LOGIC ---
-    const LOCAL_CSV_FILE = "cl.csv";
-    const HIERARCHY = ["Principal Chief Commissioner", "Chief Commissioner", "Principal Commissioner", "Commissioner", "Additional Commissioner", "Joint Commissioner", "Deputy Commissioner"];
-    const CURRENT_POSTS = { "Principal Chief Commissioner": 16, "Chief Commissioner": 38, "Principal Commissioner": 99, "Commissioner": 335, "Additional Commissioner": 680, "Joint Commissioner": 400, "Deputy Commissioner": 2000 };
-    const RESTRUCTURED_POSTS = { "Principal Chief Commissioner": 40, "Chief Commissioner": 50, "Principal Commissioner": 138, "Commissioner": 562, "Additional Commissioner": 1000, "Joint Commissioner": 748, "Deputy Commissioner": 2000 };
+    const CURRENT_POSTS = {
+        "Principal Chief Commissioner": 16, 
+        "Chief Commissioner": 38, 
+        "Principal Commissioner": 99, 
+        "Commissioner": 335, 
+        "Additional Commissioner": 700, 
+        "Joint Commissioner": 405,
+        "Deputy Commissioner": 2000
+    };
+
+    const RESTRUCTURED_POSTS = {
+        "Principal Chief Commissioner": 40, 
+        "Chief Commissioner": 50, 
+        "Principal Commissioner": 138, 
+        "Commissioner": 562, 
+        "Additional Commissioner": 1000, 
+        "Joint Commissioner": 748,
+        "Deputy Commissioner": 2000
+    };
 
     let globalData = [];
+    let chartCurrent = null;
+    let chartRestructure = null;
     let currentYear = new Date().getFullYear();
+    
+    // Global variable to hold batch lists for modal
+    window.currentBatchLists = {};
+    window.restructureBatchLists = {};
 
-    function initApp() {
+    function getCumulativeSeats(postsDict) {
+        let cumSeats = {};
+        let total = 0;
+        for (let post of HIERARCHY) {
+            total += postsDict[post];
+            cumSeats[post] = total;
+        }
+        return cumSeats;
+    }
+
+    const currentCumSeats = getCumulativeSeats(CURRENT_POSTS);
+    const restructureCumSeats = getCumulativeSeats(RESTRUCTURED_POSTS);
+
+    function getDesignation(rankIndex, cumSeats) {
+        for (let post of HIERARCHY) {
+            if (rankIndex < cumSeats[post]) {
+                return post;
+            }
+        }
+        return "Waiting List / Out of Cadre";
+    }
+
+    function getDesignationLevel(designation) {
+        let idx = HIERARCHY.indexOf(designation);
+        if (idx === -1) return 0; 
+        return HIERARCHY.length - idx; 
+    }
+
+    // Eligibility Rules Engine
+    function getEligibleDesignation(targetDesig, year, joinYear, history) {
+        let yos = year - joinYear;
+        let targetIdx = HIERARCHY.indexOf(targetDesig);
+        if (targetIdx === -1) return "Waiting List / Out of Cadre";
+
+        for (let i = targetIdx; i < HIERARCHY.length; i++) {
+            let checkDesig = HIERARCHY[i];
+
+            if (checkDesig === "Principal Chief Commissioner") {
+                if (history["Chief Commissioner"] && (year - history["Chief Commissioner"] >= 1)) return checkDesig;
+            }
+            else if (checkDesig === "Chief Commissioner") {
+                if (history["Principal Commissioner"] && (year - history["Principal Commissioner"] >= 1)) return checkDesig;
+            }
+            else if (checkDesig === "Principal Commissioner") {
+                if (history["Commissioner"] && (year - history["Commissioner"] >= 3)) return checkDesig;
+            }
+            else if (checkDesig === "Commissioner") {
+                if (yos >= 17) return checkDesig;
+            }
+            else if (checkDesig === "Additional Commissioner") {
+                if (yos >= 13) return checkDesig;
+            }
+            else if (checkDesig === "Joint Commissioner") {
+                if (yos >= 9) return checkDesig; 
+            }
+            else if (checkDesig === "Deputy Commissioner") {
+                return checkDesig; 
+            }
+        }
+        return "Waiting List / Out of Cadre";
+    }
+
+    // Core function to process loaded CSV data
+    function processCSVData(data) {
+        globalData = [];
+        let batches = new Set();
+
+        data.forEach(rawRow => {
+            let row = {};
+            for(let key in rawRow) row[key.trim()] = rawRow[key];
+            
+            let idNo = parseInt(row['ID No.']);
+            let siNo = parseInt(row['SI. No.']);
+            let batch = row['Batch'] ? row['Batch'].trim() : 'N/A';
+            
+            let retStr = row['Date of Retirement'];
+            let retYear = null;
+            if (retStr && typeof retStr === 'string') {
+                let parts = retStr.split('-');
+                if (parts.length === 3) retYear = parseInt(parts[2]); 
+            }
+
+            let dobStr = row['Date of Birth'];
+            let birthYear = null;
+            if (dobStr && typeof dobStr === 'string') {
+                let parts = dobStr.split('-');
+                if (parts.length === 3) birthYear = parts[2].trim(); 
+            }
+
+            let apptStr = row["Date of Appointment to Group 'A'"];
+            let joinYear = null;
+            if (apptStr && typeof apptStr === 'string') {
+                let parts = apptStr.split('-');
+                if (parts.length === 3) joinYear = parseInt(parts[2]);
+            }
+            if (!joinYear && batch !== 'N/A') {
+                let bMatch = batch.match(/\d{4}/);
+                if (bMatch) joinYear = parseInt(bMatch[0]);
+            }
+            if (!joinYear && retYear) joinYear = retYear - 35;
+
+            let promStr = row["Date of Promotion in Present Grade"];
+            let promYear = null;
+            if (promStr && typeof promStr === 'string') {
+                let parts = promStr.split('-');
+                if (parts.length === 3) promYear = parseInt(parts[2]);
+            }
+            if (!promYear) promYear = currentYear;
+
+            // Designation Mapping
+            const DESIGNATION_ALIASES = [
+                { search: "Principal Addl. Director General", standard: "Principal Commissioner" },
+                { search: "Principal Director General", standard: "Principal Chief Commissioner" },
+                { search: "Principal Chief Commissioner", standard: "Principal Chief Commissioner" },
+                { search: "Principal Commissioner", standard: "Principal Commissioner" },
+                { search: "Additional Director", standard: "Additional Commissioner" },
+                { search: "Additional Commissioner", standard: "Additional Commissioner" },
+                { search: "Joint Director", standard: "Joint Commissioner" },
+                { search: "Joint Commissioner", standard: "Joint Commissioner" },
+                { search: "Director General", standard: "Chief Commissioner" },
+                { search: "Chief Commissioner", standard: "Chief Commissioner" },
+                { search: "Addl. DG", standard: "Commissioner" },
+                { search: "Commissioner", standard: "Commissioner" },
+                { search: "Deputy Director", standard: "Deputy Commissioner" },
+                { search: "Deputy Commissioner", standard: "Deputy Commissioner" }
+            ];
+
+            let actualDesig = "Deputy Commissioner"; 
+            let rowValues = Object.values(row);
+            
+            for (let aliasObj of DESIGNATION_ALIASES) {
+                if (rowValues.some(val => typeof val === 'string' && val.includes(aliasObj.search))) {
+                    actualDesig = aliasObj.standard;
+                    break;
+                }
+            }
+
+            if (!isNaN(idNo) && !isNaN(siNo) && retYear) {
+                globalData.push({
+                    idNo: idNo,
+                    siNo: siNo,
+                    name: row['Name'] || 'Unknown',
+                    batch: batch,
+                    retDate: retStr || "Unknown",
+                    retYear: retYear,
+                    birthYear: birthYear,
+                    joinYear: joinYear,
+                    promYear: promYear,
+                    currentDesig: actualDesig
+                });
+                if (batch !== 'N/A') batches.add(batch);
+            }
+        });
+
+        if (globalData.length > 0) {
+            document.getElementById('status-msg').style.display = 'none';
+            
+            let batchSelect = document.getElementById('batchSelect');
+            batchSelect.innerHTML = '<option value="">-- Select a Batch --</option>'; 
+            Array.from(batches).sort().forEach(b => {
+                let opt = document.createElement('option');
+                opt.value = b;
+                opt.innerHTML = b;
+                batchSelect.appendChild(opt);
+            });
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function loadCSVData() {
         Papa.parse(LOCAL_CSV_FILE, {
-            download: true, header: true, skipEmptyLines: true,
+            download: true,
+            header: true,
+            skipEmptyLines: true,
             complete: function(results) {
-                let data = results.data;
-                let batches = new Set();
-                data.forEach(rawRow => {
-                    let row = {};
-                    for(let key in rawRow) row[key.trim()] = rawRow[key];
-                    let idNo = parseInt(row['ID No.']);
-                    let siNo = parseInt(row['SI. No.']);
-                    let retStr = row['Date of Retirement'];
-                    let retYear = (retStr && retStr.split('-').length === 3) ? parseInt(retStr.split('-')[2]) : null;
-                    if (!isNaN(idNo) && retYear) {
-                        globalData.push({
-                            idNo: idNo, siNo: siNo, name: row['Name'] || 'Unknown',
-                            batch: row['Batch'] ? row['Batch'].trim() : 'N/A',
-                            retYear: retYear, birthYear: (row['Date of Birth'] || "").split('-')[2],
-                            joinYear: retYear - 35, currentDesig: "Deputy Commissioner"
-                        });
-                        if (row['Batch']) batches.add(row['Batch'].trim());
-                    }
-                });
-                document.getElementById('status-msg').style.display = 'none';
-                let batchSelect = document.getElementById('batchSelect');
-                Array.from(batches).sort().forEach(b => {
-                    let opt = document.createElement('option'); opt.value = b; opt.innerHTML = b; batchSelect.appendChild(opt);
-                });
+                let success = processCSVData(results.data);
+                if (!success) {
+                    document.getElementById('status-msg').style.color = 'red';
+                    document.getElementById('status-msg').innerText = "❌ File loaded but no valid data found. Check your CSV format.";
+                }
+            },
+            error: function(err) {
+                document.getElementById('status-msg').style.color = 'red';
+                document.getElementById('status-msg').innerHTML = "❌ Failed to load local <strong>cl.csv</strong>. Please upload a custom CSV below.";
+                console.error(err);
             }
         });
     }
 
-    // (Simplified placeholders for your switchPage, runSimulation, etc. functions remain the same as your original code)
+    // Listen for custom CSV file upload
+    document.getElementById('csvUpload').addEventListener('change', function(e) {
+        let file = e.target.files[0];
+        if (!file) return;
+
+        document.getElementById('status-msg').style.display = 'block';
+        document.getElementById('status-msg').style.color = 'blue';
+        document.getElementById('status-msg').innerText = "Processing uploaded CSV...";
+
+        Papa.parse(file, {
+            header: true,
+            skipEmptyLines: true,
+            complete: function(results) {
+                let success = processCSVData(results.data);
+                if (success) {
+                    document.getElementById('status-msg').innerText = "✅ Custom CSV Database loaded successfully!";
+                    document.getElementById('status-msg').style.color = 'green';
+                    setTimeout(() => { document.getElementById('status-msg').style.display = 'none'; }, 3000);
+                } else {
+                    document.getElementById('status-msg').style.color = 'red';
+                    document.getElementById('status-msg').innerText = "❌ Uploaded file contained no valid data. Check your CSV format.";
+                }
+            },
+            error: function(err) {
+                document.getElementById('status-msg').style.color = 'red';
+                document.getElementById('status-msg').innerText = "❌ Error parsing uploaded CSV file.";
+                console.error(err);
+            }
+        });
+    });
+
     function switchPage(pageId) {
         document.querySelectorAll('.page').forEach(el => el.classList.remove('active-page'));
         document.getElementById(pageId).classList.add('active-page');
+        
         document.querySelectorAll('.nav-bar button').forEach(btn => btn.classList.remove('active-nav'));
         document.getElementById('nav-' + pageId.split('-')[1]).classList.add('active-nav');
+    }
+
+
+    // --- PAGE: BATCH ANALYSIS LOGIC ---
+    function simulateOfficerHistory(officer, cumSeats) {
+        let history = {};
+        let startIdx = HIERARCHY.indexOf(officer.currentDesig);
+        
+        if (startIdx !== -1) {
+            history[officer.currentDesig] = officer.promYear;
+            for (let i = startIdx + 1; i < HIERARCHY.length; i++) {
+                history[HIERARCHY[i]] = 1900; 
+            }
+        } else {
+            history["Deputy Commissioner"] = officer.promYear;
+        }
+
+        let startYear = currentYear;
+        if (officer.retYear < startYear) startYear = officer.retYear - 5; 
+
+        let finalDesig = "Waiting List / Out of Cadre";
+
+        for (let year = startYear; year <= officer.retYear; year++) {
+            let activeOfficers = globalData.filter(o => o.retYear > year || o.idNo === officer.idNo);
+            activeOfficers.sort((a, b) => a.siNo - b.siNo);
+            
+            let rankIndex = activeOfficers.findIndex(o => o.idNo === officer.idNo);
+            
+            if (rankIndex !== -1) {
+                let desigVacancy = getDesignation(rankIndex, cumSeats);
+                finalDesig = getEligibleDesignation(desigVacancy, year, officer.joinYear, history);
+                if (!history[finalDesig]) history[finalDesig] = year; 
+            }
+        }
+        return finalDesig;
+    }
+
+    function runBatchAnalysis() {
+        let batch = document.getElementById('batchSelect').value;
+        let container = document.getElementById('batchResults');
+
+        if (!batch) {
+            container.innerHTML = "<p style='color:red; text-align:center;'>Please select a batch from the dropdown.</p>";
+            return;
+        }
+
+        let batchOfficers = globalData.filter(o => o.batch === batch);
+        
+        let currentLists = {};
+        let restructureLists = {};
+        
+        let allLabels = [...HIERARCHY, "Waiting List / Out of Cadre"];
+        allLabels.forEach(h => {
+            currentLists[h] = [];
+            restructureLists[h] = [];
+        });
+
+        batchOfficers.forEach(officer => {
+            let dCurr = simulateOfficerHistory(officer, currentCumSeats);
+            let dRest = simulateOfficerHistory(officer, restructureCumSeats);
+            
+            currentLists[dCurr].push(officer);
+            restructureLists[dRest].push(officer);
+        });
+
+        window.currentBatchLists = currentLists;
+        window.restructureBatchLists = restructureLists;
+
+        let html = `<h4 style="text-align:center; margin-top:30px;">Retirement Designations for Batch: ${batch} (Total: ${batchOfficers.length} Officers)</h4>`;
+        html += `<table class="promo-table">
+                    <thead>
+                        <tr>
+                            <th>Designation at Retirement</th>
+                            <th>Count (Current Vacancies)</th>
+                            <th>Count (Restructured Vacancies)</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+        
+        allLabels.forEach(designation => {
+            let currCount = currentLists[designation].length;
+            let restCount = restructureLists[designation].length;
+            
+            if (currCount > 0 || restCount > 0) {
+                html += `<tr>
+                            <td><strong>${designation}</strong></td>
+                            <td style="text-align:center;">
+                                ${currCount > 0 ? `<span class="clickable-count" onclick="showBatchDetails('${designation}', 'current')">${currCount}</span>` : '0'}
+                            </td>
+                            <td style="text-align:center; background-color:#e8f5e9;">
+                                ${restCount > 0 ? `<span class="clickable-count" onclick="showBatchDetails('${designation}', 'restructure')">${restCount}</span>` : '0'}
+                            </td>
+                         </tr>`;
+            }
+        });
+
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+    }
+
+    // --- MODAL LOGIC FOR BATCH DETAILS ---
+    function showBatchDetails(designation, type) {
+        let list = type === 'current' ? window.currentBatchLists[designation] : window.restructureBatchLists[designation];
+        let title = `${designation} <span style='font-size:16px; color:#555;'>(${type === 'current' ? 'Current Vacancies' : 'Restructured Vacancies'})</span>`;
+        document.getElementById('modalTitle').innerHTML = title;
+        
+        let html = `<table class="promo-table">
+                    <thead><tr><th>ID No.</th><th>Name</th><th>Date of Retirement</th></tr></thead><tbody>`;
+        
+        list.forEach(o => {
+            html += `<tr><td>${o.idNo}</td><td>${o.name}</td><td>${o.retDate || o.retYear}</td></tr>`;
+        });
+        
+        html += `</tbody></table>`;
+        document.getElementById('modalBody').innerHTML = html;
+        document.getElementById('officerModal').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('officerModal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        let modal = document.getElementById('officerModal');
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    // --- PAGE: PROMOTION PREDICTOR LOGIC ---
+    function runSimulation() {
+        const empIdInput = document.getElementById('empId').value;
+        const empBirthYearInput = document.getElementById('empBirthYear').value.trim();
+        
+        if (!empIdInput || !empBirthYearInput) {
+            alert("Please enter both Employee ID and Birth Year to search.");
+            return;
+        }
+
+        const empId = parseInt(empIdInput);
+        const officerInfo = globalData.find(o => o.idNo === empId);
+
+        if (!officerInfo) {
+            alert("Employee ID not found in the database.");
+            document.getElementById('officerInfo').style.display = 'none';
+            return;
+        }
+
+        if (officerInfo.birthYear !== empBirthYearInput) {
+            alert("Incorrect Birth Year combination for the provided Employee ID. Access Denied.");
+            document.getElementById('officerInfo').style.display = 'none';
+            return;
+        }
+        
+        document.getElementById('officerInfo').style.display = 'block';
+        document.getElementById('infoName').innerText = officerInfo.name;
+        document.getElementById('infoBatch').innerText = officerInfo.batch;
+        document.getElementById('infoJoinYear').innerText = officerInfo.joinYear;
+        document.getElementById('infoRetYear').innerText = officerInfo.retYear;
+
+        let resultsCurrent = [];
+        let resultsRestructure = [];
+        
+        let startYear = currentYear;
+        if (officerInfo.retYear < startYear) startYear = officerInfo.retYear - 5; 
+
+        let historyCurrent = {};
+        let historyRestructure = {};
+        let startIdx = HIERARCHY.indexOf(officerInfo.currentDesig);
+        
+        if (startIdx !== -1) {
+            historyCurrent[officerInfo.currentDesig] = officerInfo.promYear;
+            historyRestructure[officerInfo.currentDesig] = officerInfo.promYear;
+            for (let i = startIdx + 1; i < HIERARCHY.length; i++) {
+                historyCurrent[HIERARCHY[i]] = 1900;
+                historyRestructure[HIERARCHY[i]] = 1900;
+            }
+        } else {
+            historyCurrent["Deputy Commissioner"] = officerInfo.promYear;
+            historyRestructure["Deputy Commissioner"] = officerInfo.promYear;
+        }
+
+        for (let year = startYear; year <= officerInfo.retYear; year++) {
+            
+            let activeOfficers = globalData.filter(o => o.retYear > year || o.idNo === empId);
+            activeOfficers.sort((a, b) => a.siNo - b.siNo);
+
+            let rankIndex = activeOfficers.findIndex(o => o.idNo === empId);
+            
+            if (rankIndex !== -1) {
+                let desigVacancyCurrent = getDesignation(rankIndex, currentCumSeats);
+                let desigVacancyRestructure = getDesignation(rankIndex, restructureCumSeats);
+
+                let actualDesigCurrent = getEligibleDesignation(desigVacancyCurrent, year, officerInfo.joinYear, historyCurrent);
+                let actualDesigRestructure = getEligibleDesignation(desigVacancyRestructure, year, officerInfo.joinYear, historyRestructure);
+
+                if (!historyCurrent[actualDesigCurrent]) historyCurrent[actualDesigCurrent] = year;
+                if (!historyRestructure[actualDesigRestructure]) historyRestructure[actualDesigRestructure] = year;
+
+                resultsCurrent.push({ year: year, designation: actualDesigCurrent, level: getDesignationLevel(actualDesigCurrent) });
+                resultsRestructure.push({ year: year, designation: actualDesigRestructure, level: getDesignationLevel(actualDesigRestructure) });
+            }
+        }
+
+        renderChart('currentChart', resultsCurrent, 'Career Progression (Current Vacancies)', 'chartCurrent');
+        renderChart('restructureChart', resultsRestructure, 'Career Progression (Post Cadre Restructuring)', 'chartRestructure');
+
+        renderPromotionList('currentListContainer', extractPromotions(resultsCurrent));
+        renderPromotionList('restructureListContainer', extractPromotions(resultsRestructure));
+    }
+
+    function extractPromotions(results) {
+        let promotions = [];
+        let seenDesignations = new Set();
+
+        for (let i = 0; i < results.length; i++) {
+            let d = results[i].designation;
+            if (!seenDesignations.has(d) && d !== "Waiting List / Out of Cadre") {
+                promotions.push({ year: results[i].year, designation: d });
+                seenDesignations.add(d);
+            }
+        }
+        return promotions;
+    }
+
+    function renderPromotionList(containerId, promotions) {
+        const container = document.getElementById(containerId);
+        if (promotions.length === 0) {
+            container.innerHTML = "<p style='text-align:center;'>No promotions projected.</p>";
+            return;
+        }
+
+        let html = `<h4 class="table-title">Projected Promotion Years</h4>`;
+        html += `<table class="promo-table">
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Designation Achieved</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+        
+        promotions.forEach(p => {
+            html += `<tr>
+                        <td><strong>${p.year}</strong></td>
+                        <td>${p.designation}</td>
+                     </tr>`;
+        });
+
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+    }
+
+    function renderChart(canvasId, data, title, chartVarStr) {
+        const ctx = document.getElementById(canvasId).getContext('2d');
+        
+        let yLabels = {0: "Waiting List"};
+        HIERARCHY.forEach((post, index) => {
+            yLabels[HIERARCHY.length - index] = post;
+        });
+
+        let years = data.map(d => d.year);
+        let levels = data.map(d => d.level);
+
+        if (window[chartVarStr]) {
+            window[chartVarStr].destroy();
+        }
+
+        window[chartVarStr] = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: years,
+                datasets: [{
+                    label: 'Projected Designation',
+                    data: levels,
+                    borderColor: canvasId === 'currentChart' ? '#007bff' : '#28a745',
+                    backgroundColor: canvasId === 'currentChart' ? 'rgba(0,123,255,0.1)' : 'rgba(40,167,69,0.1)',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#333',
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    fill: true,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let val = context.raw;
+                                return yLabels[val] || "Unknown";
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        min: 0,
+                        max: HIERARCHY.length,
+                        ticks: {
+                            stepSize: 1,
+                            callback: function(value) { return yLabels[value]; },
+                            font: { size: 11 }
+                        }
+                    },
+                    x: {
+                        title: { display: true, text: 'Year', font: {weight: 'bold'} }
+                    }
+                }
+            }
+        });
     }
 
     function openTab(evt, tabName) {
         let i, tabcontent, tablinks;
         tabcontent = document.getElementsByClassName("tabcontent");
-        for (i = 0; i < tabcontent.length; i++) tabcontent[i].style.display = "none";
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
         tablinks = document.getElementsByClassName("tablinks");
-        for (i = 0; i < tablinks.length; i++) tablinks[i].className = tablinks[i].className.replace(" active", "");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
         document.getElementById(tabName).style.display = "block";
         evt.currentTarget.className += " active";
     }
-
-    // Note: Re-include your full runSimulation, renderChart, and search functions here.
 </script>
+
 </body>
 </html>
