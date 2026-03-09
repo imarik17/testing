@@ -84,7 +84,7 @@
                 <li>This projection has been prepared using a basic forecasting equation with minimal parameters, primarily based on the availability of vacancies. The actual years of promotion may differ, as the calculation does not take into account the eligibility criteria applicable to each designation.</li>
                 <li>The data has been sourced from the Civil List PDF file; while every effort has been made to ensure accuracy, some discrepancies may remain due to the cumbersome nature of verification.</li>
                 <li>Post-restructuring vacancies have been taken from the Re-worked Cadre Restructuring Proposal of CBIC presented before the Revenue Secretary.</li>
-                <li>At present, coverage is limited to officers at the level of Joint Commissioner and above.</li>
+                <li>At present, coverage is limited to officers at the level of Deputy Commissioner and above.</li>
                 <li>And, the figures presented herein are purely indicative, prepared in a rudimentary manner to provide only a broad overview of the promotional position. They should not be treated as definitive, as they are intended merely to convey a general picture.</li>
             </ol>
         </div>
@@ -111,7 +111,6 @@
             <div class="officer-info" id="officerInfo">
                 <strong>Name:</strong> <span id="infoName"></span> | 
                 <strong>Batch:</strong> <span id="infoBatch"></span><br>
-                <strong>Current Designation:</strong> <span id="infoDesig"></span><br>
                 <strong>Joining Year:</strong> <span id="infoJoinYear"></span> | 
                 <strong>Retirement Year:</strong> <span id="infoRetYear"></span>
             </div>
@@ -187,7 +186,8 @@
         "Principal Commissioner", 
         "Commissioner", 
         "Additional Commissioner", 
-        "Joint Commissioner"
+        "Joint Commissioner",
+        "Deputy Commissioner"
     ];
 
     const CURRENT_POSTS = {
@@ -196,7 +196,8 @@
         "Principal Commissioner": 99, 
         "Commissioner": 335, 
         "Additional Commissioner": 680, 
-        "Joint Commissioner": 400
+        "Joint Commissioner": 400,
+        "Deputy Commissioner": 2000
     };
 
     const RESTRUCTURED_POSTS = {
@@ -205,7 +206,8 @@
         "Principal Commissioner": 138, 
         "Commissioner": 562, 
         "Additional Commissioner": 1000, 
-        "Joint Commissioner": 748
+        "Joint Commissioner": 748,
+        "Deputy Commissioner": 2000
     };
 
     let globalData = [];
@@ -270,6 +272,9 @@
                 if (yos >= 13) return checkDesig;
             }
             else if (checkDesig === "Joint Commissioner") {
+                if (yos >= 9) return checkDesig; 
+            }
+            else if (checkDesig === "Deputy Commissioner") {
                 return checkDesig; 
             }
         }
@@ -341,10 +346,12 @@
                         { search: "Director General", standard: "Chief Commissioner" },
                         { search: "Chief Commissioner", standard: "Chief Commissioner" },
                         { search: "Addl. DG", standard: "Commissioner" },
-                        { search: "Commissioner", standard: "Commissioner" }
+                        { search: "Commissioner", standard: "Commissioner" },
+                        { search: "Deputy Director", standard: "Deputy Commissioner" },
+                        { search: "Deputy Commissioner", standard: "Deputy Commissioner" }
                     ];
 
-                    let actualDesig = "Joint Commissioner"; 
+                    let actualDesig = "Deputy Commissioner"; 
                     let rowValues = Object.values(row);
                     
                     for (let aliasObj of DESIGNATION_ALIASES) {
@@ -453,7 +460,7 @@
                 history[HIERARCHY[i]] = 1900; 
             }
         } else {
-            history["Joint Commissioner"] = officer.promYear;
+            history["Deputy Commissioner"] = officer.promYear;
         }
 
         let startYear = currentYear;
@@ -470,16 +477,6 @@
             if (rankIndex !== -1) {
                 let desigVacancy = getDesignation(rankIndex, cumSeats);
                 finalDesig = getEligibleDesignation(desigVacancy, year, officer.joinYear, history);
-                
-                // Prevent demotion below actual current designation
-                let currentIdx = HIERARCHY.indexOf(officer.currentDesig);
-                if (currentIdx !== -1) {
-                    let fIdx = HIERARCHY.indexOf(finalDesig);
-                    if (fIdx === -1 || fIdx > currentIdx) {
-                        finalDesig = officer.currentDesig;
-                    }
-                }
-
                 if (!history[finalDesig]) history[finalDesig] = year; 
             }
         }
@@ -610,7 +607,6 @@
         document.getElementById('officerInfo').style.display = 'block';
         document.getElementById('infoName').innerText = officerInfo.name;
         document.getElementById('infoBatch').innerText = officerInfo.batch;
-        document.getElementById('infoDesig').innerText = officerInfo.currentDesig;
         document.getElementById('infoJoinYear').innerText = officerInfo.joinYear;
         document.getElementById('infoRetYear').innerText = officerInfo.retYear;
 
@@ -632,8 +628,8 @@
                 historyRestructure[HIERARCHY[i]] = 1900;
             }
         } else {
-            historyCurrent["Joint Commissioner"] = officerInfo.promYear;
-            historyRestructure["Joint Commissioner"] = officerInfo.promYear;
+            historyCurrent["Deputy Commissioner"] = officerInfo.promYear;
+            historyRestructure["Deputy Commissioner"] = officerInfo.promYear;
         }
 
         for (let year = startYear; year <= officerInfo.retYear; year++) {
@@ -650,16 +646,6 @@
                 let actualDesigCurrent = getEligibleDesignation(desigVacancyCurrent, year, officerInfo.joinYear, historyCurrent);
                 let actualDesigRestructure = getEligibleDesignation(desigVacancyRestructure, year, officerInfo.joinYear, historyRestructure);
 
-                // Prevent demotion below actual current designation
-                let currentIdx = HIERARCHY.indexOf(officerInfo.currentDesig);
-                if (currentIdx !== -1) {
-                    let idxC = HIERARCHY.indexOf(actualDesigCurrent);
-                    if (idxC === -1 || idxC > currentIdx) actualDesigCurrent = officerInfo.currentDesig;
-                    
-                    let idxR = HIERARCHY.indexOf(actualDesigRestructure);
-                    if (idxR === -1 || idxR > currentIdx) actualDesigRestructure = officerInfo.currentDesig;
-                }
-
                 if (!historyCurrent[actualDesigCurrent]) historyCurrent[actualDesigCurrent] = year;
                 if (!historyRestructure[actualDesigRestructure]) historyRestructure[actualDesigRestructure] = year;
 
@@ -671,23 +657,13 @@
         renderChart('currentChart', resultsCurrent, 'Career Progression (Current Vacancies)', 'chartCurrent');
         renderChart('restructureChart', resultsRestructure, 'Career Progression (Post Cadre Restructuring)', 'chartRestructure');
 
-        // Pass their current designation to extractPromotions so it isn't listed as a future promotion
-        renderPromotionList('currentListContainer', extractPromotions(resultsCurrent, officerInfo.currentDesig));
-        renderPromotionList('restructureListContainer', extractPromotions(resultsRestructure, officerInfo.currentDesig));
+        renderPromotionList('currentListContainer', extractPromotions(resultsCurrent));
+        renderPromotionList('restructureListContainer', extractPromotions(resultsRestructure));
     }
 
-    // Accepts currentDesig to ensure pre-existing ranks aren't flagged as new promotions
-    function extractPromotions(results, currentDesig) {
+    function extractPromotions(results) {
         let promotions = [];
         let seenDesignations = new Set();
-
-        // Pre-fill seen designations with current and all lower ranks
-        let currentIdx = HIERARCHY.indexOf(currentDesig);
-        if (currentIdx !== -1) {
-            for (let i = currentIdx; i < HIERARCHY.length; i++) {
-                seenDesignations.add(HIERARCHY[i]);
-            }
-        }
 
         for (let i = 0; i < results.length; i++) {
             let d = results[i].designation;
@@ -702,7 +678,7 @@
     function renderPromotionList(containerId, promotions) {
         const container = document.getElementById(containerId);
         if (promotions.length === 0) {
-            container.innerHTML = "<p style='text-align:center;'>No subsequent upward promotions projected.</p>";
+            container.innerHTML = "<p style='text-align:center;'>No promotions projected.</p>";
             return;
         }
 
