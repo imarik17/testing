@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Officer Directory - Login</title>
+    <title>Officer Directory</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <style>
         body {
@@ -14,7 +14,7 @@
             color: #ffffff;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start; /* Changed to flex-start for direct app viewing */
             min-height: 100vh;
         }
         
@@ -31,7 +31,7 @@
             max-width: 1200px;
             width: 100%;
             padding: 30px;
-            display: none; 
+            display: block; /* Changed from none to block to show immediately */
             align-items: flex-start;
         }
 
@@ -71,29 +71,6 @@
 </head>
 <body>
 
-    <div id="loginScreen" class="card">
-        <h2>CBIC Directory Login</h2>
-        <div id="loginError" class="error-msg">Invalid credentials.</div>
-        <label>Email ID</label>
-        <input type="text" id="emailInput" placeholder="Enter your email">
-        <label>Password</label>
-        <input type="password" id="passwordInput" placeholder="Enter password">
-        <button id="loginBtn" onclick="attemptLogin()">Login</button>
-        <div id="loginLoader" class="loader" style="margin-top: 15px;"></div>
-    </div>
-
-    <div id="changePasswordScreen" class="card" style="display: none;">
-        <h2>Action Required</h2>
-        <p style="font-size: 14px; color: #cbd5e0; margin-bottom: 20px;">For security, please change your default password.</p>
-        <div id="pwdError" class="error-msg">Passwords do not match.</div>
-        <label>New Password</label>
-        <input type="password" id="newPwd1" placeholder="Enter new password">
-        <label>Confirm New Password</label>
-        <input type="password" id="newPwd2" placeholder="Confirm new password">
-        <button id="changePwdBtn" onclick="changePassword()">Update Password</button>
-        <div id="pwdLoader" class="loader" style="margin-top: 15px;"></div>
-    </div>
-
     <div id="appScreen" class="card app-container">
         <h2>CBIC Officer Directory</h2>
         
@@ -103,7 +80,7 @@
                 <div><label>Search Commissionerate:</label><input type="text" id="commSearch" disabled></div>
                 <div><label>Search Designation:</label><input type="text" id="desigSearch" disabled></div>
             </div>
-            <div id="statusText" style="color: #63b3ed; margin-top: 15px; font-size: 14px; font-weight: bold;">Authenticating...</div>
+            <div id="statusText" style="color: #63b3ed; margin-top: 15px; font-size: 14px; font-weight: bold;">Loading...</div>
         </div>
 
         <table id="resultsTable">
@@ -113,7 +90,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr><td colspan="6" style="text-align: center; color: #a0aec0;">Data will load automatically after login.</td></tr>
+                <tr><td colspan="6" style="text-align: center; color: #a0aec0;">Fetching directory entries...</td></tr>
             </tbody>
         </table>
     </div>
@@ -130,83 +107,6 @@
         // 2. PASTE YOUR DIRECT CSV DOWNLOAD URL HERE:
         // ==========================================
         const CSV_URL = "officers.csv";
-        
-        let currentUserEmail = "";
-
-        // --- AUTHENTICATION LOGIC ---
-        async function attemptLogin() {
-            const email = document.getElementById('emailInput').value;
-            const password = document.getElementById('passwordInput').value;
-            const errorDiv = document.getElementById('loginError');
-            const btn = document.getElementById('loginBtn');
-            const loader = document.getElementById('loginLoader');
-
-            if(!email || !password) { errorDiv.innerText = "Please enter both fields."; errorDiv.style.display = "block"; return; }
-
-            errorDiv.style.display = "none"; btn.disabled = true; loader.style.display = "block";
-
-            try {
-                const response = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'login', email: email, password: password })
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    currentUserEmail = email;
-                    document.getElementById('loginScreen').style.display = "none";
-                    document.body.style.alignItems = "flex-start";
-
-                    if (result.isFirstLogin) {
-                        document.body.style.alignItems = "center";
-                        document.getElementById('changePasswordScreen').style.display = "block";
-                    } else {
-                        document.getElementById('appScreen').style.display = "block";
-                        loadCSVData(); // Auto-load data here!
-                    }
-                } else {
-                    errorDiv.innerText = result.message || "Invalid credentials.";
-                    errorDiv.style.display = "block";
-                }
-            } catch (error) {
-                errorDiv.innerText = "Network error. Check Apps Script URL.";
-                errorDiv.style.display = "block";
-            }
-
-            btn.disabled = false; loader.style.display = "none";
-        }
-
-        async function changePassword() {
-            const p1 = document.getElementById('newPwd1').value;
-            const p2 = document.getElementById('newPwd2').value;
-            const errorDiv = document.getElementById('pwdError');
-            const btn = document.getElementById('changePwdBtn');
-            const loader = document.getElementById('pwdLoader');
-
-            if(p1.length < 5) { errorDiv.innerText = "Password too short."; errorDiv.style.display = "block"; return; }
-            if(p1 !== p2) { errorDiv.innerText = "Passwords do not match."; errorDiv.style.display = "block"; return; }
-
-            errorDiv.style.display = "none"; btn.disabled = true; loader.style.display = "block";
-
-            try {
-                const response = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'changePassword', email: currentUserEmail, newPassword: p1 })
-                });
-                const result = await response.json();
-
-                if(result.success) {
-                    document.getElementById('changePasswordScreen').style.display = "none";
-                    document.body.style.alignItems = "flex-start";
-                    document.getElementById('appScreen').style.display = "block";
-                    loadCSVData(); // Auto-load data here!
-                }
-            } catch(error) {
-                errorDiv.innerText = "Failed to update password."; errorDiv.style.display = "block";
-            }
-            btn.disabled = false; loader.style.display = "none";
-        }
 
         // --- DIRECTORY LOGIC ---
         let officersData = []; 
@@ -290,6 +190,9 @@
                 tbody.appendChild(row);
             });
         }
+
+        // Auto-run database load on window load since login screen is removed
+        window.onload = loadCSVData;
     </script>
 </body>
 </html>
